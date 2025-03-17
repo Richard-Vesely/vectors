@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -126,13 +126,60 @@ h3 {
     border-radius: 4px;
 }
 
+.visualization-container {
+    display: flex;
+    margin-bottom: 30px;
+}
+
 .grid-container {
+    flex: 1;
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+}
+
+.legend-container {
+    width: 220px;
+    padding: 10px;
+    margin-left: 15px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+.legend-text {
+    flex: 1;
+}
+
+.legend-equation {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    font-family: "Courier New", monospace;
 }
 
 #vector-grid, #displacement-grid, #velocity-grid, #acceleration-grid {

@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const height = positionCanvas.height;
     const derivativeHeight = displacementCanvas.height;
     
+    // Legend containers
+    const positionLegend = document.getElementById('position-legend');
+    const displacementLegend = document.getElementById('displacement-legend');
+    const velocityLegend = document.getElementById('velocity-legend');
+    const accelerationLegend = document.getElementById('acceleration-legend');
+    
     // Grid settings
     const gridSize = 20;
     const gridLines = Math.floor(width / gridSize);
@@ -32,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('time4')
     ];
     
-    // Time-specific colors
+    // Time-specific colors for positions
     const timeColors = {
         1: '#E53935', // Red
         2: '#43A047', // Green
@@ -40,13 +46,26 @@ document.addEventListener('DOMContentLoaded', () => {
         4: '#8E24AA'  // Purple
     };
     
+    // Colors for velocity vectors (different from position colors)
+    const velocityColors = {
+        "1-2": '#FB8C00', // Orange
+        "2-3": '#00ACC1', // Cyan
+        "3-4": '#7CB342'  // Light Green
+    };
+    
+    // Colors for acceleration vectors (different from position and velocity colors)
+    const accelerationColors = {
+        "1-2-3": '#FF5722', // Deep Orange
+        "2-3-4": '#9C27B0'  // Purple
+    };
+    
     // State
     let selectedTime = 1;
     const positions = {
-        1: null,
-        2: null,
-        3: null,
-        4: null
+        1: { x: 1, y: 0 },
+        2: { x: 1, y: 1 },
+        3: { x: 2, y: 2 },
+        4: { x: 3, y: 1 }
     };
     
     // Time values (in seconds)
@@ -59,6 +78,94 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper function to calculate vector magnitude
     function vectorMagnitude(vector) {
         return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+    }
+    
+    // Create legends for all visualizations
+    function createLegends() {
+        // Position legend
+        positionLegend.innerHTML = `
+            <div class="legend-title">Position Vectors</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[1]}"></div>
+                <div class="legend-text">x₁: Position at time t₁</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[2]}"></div>
+                <div class="legend-text">x₂: Position at time t₂</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[3]}"></div>
+                <div class="legend-text">x₃: Position at time t₃</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[4]}"></div>
+                <div class="legend-text">x₄: Position at time t₄</div>
+            </div>
+            <div class="legend-equation">
+                x = (x, y)
+            </div>
+        `;
+        
+        // Displacement legend
+        displacementLegend.innerHTML = `
+            <div class="legend-title">Displacement Vectors</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[1]}"></div>
+                <div class="legend-text">r₁: Displacement to x₁</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[2]}"></div>
+                <div class="legend-text">r₂: Displacement to x₂</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[3]}"></div>
+                <div class="legend-text">r₃: Displacement to x₃</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${timeColors[4]}"></div>
+                <div class="legend-text">r₄: Displacement to x₄</div>
+            </div>
+            <div class="legend-equation">
+                r = x - x₀ = (x, y)
+            </div>
+        `;
+        
+        // Velocity legend
+        velocityLegend.innerHTML = `
+            <div class="legend-title">Velocity Vectors (Δx/Δt)</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${velocityColors["1-2"]}"></div>
+                <div class="legend-text">v₁₋₂: Velocity from t₁ to t₂</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${velocityColors["2-3"]}"></div>
+                <div class="legend-text">v₂₋₃: Velocity from t₂ to t₃</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${velocityColors["3-4"]}"></div>
+                <div class="legend-text">v₃₋₄: Velocity from t₃ to t₄</div>
+            </div>
+            <div class="legend-equation">
+                v₁₋₂ = Δx/Δt = (x₂ - x₁)/(t₂ - t₁)
+            </div>
+        `;
+        
+        // Acceleration legend
+        accelerationLegend.innerHTML = `
+            <div class="legend-title">Acceleration Vectors (Δ²x/Δt²)</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${accelerationColors["1-2-3"]}"></div>
+                <div class="legend-text">a₁₋₂₋₃: Acceleration from t₁ to t₃</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${accelerationColors["2-3-4"]}"></div>
+                <div class="legend-text">a₂₋₃₋₄: Acceleration from t₂ to t₄</div>
+            </div>
+            <div class="legend-equation">
+                a₁₋₂₋₃ = Δv/Δt = (v₂₋₃ - v₁₋₂)/Δt
+                      = Δ²x/Δt²
+            </div>
+        `;
     }
     
     // Draw grid for position canvas
@@ -175,10 +282,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(centerX, canvasHeight);
         ctx.stroke();
         
-        // Add title
+        // Add title - moved more to the right
         ctx.fillStyle = '#333';
         ctx.font = 'bold 14px Arial';
-        ctx.fillText(title, 10, 20);
+        ctx.fillText(title, width / 4, 20);
     }
     
     // Convert grid coordinates to canvas coordinates
@@ -253,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             positionCtx.font = '12px Arial';
             positionCtx.textAlign = 'center';
             positionCtx.textBaseline = 'bottom';
-            positionCtx.fillText(`t${timeInt}=${timeValues[timeInt-1]}s`, x, y - 10);
+            positionCtx.fillText(`x${timeInt} (t=${timeValues[timeInt-1]}s)`, x, y - 10);
         });
     }
     
@@ -282,22 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 2
             );
             
-            // Add label with magnitude
-            const magnitude = vectorMagnitude(position);
-            displacementCtx.fillStyle = '#000';
-            displacementCtx.font = '12px Arial';
-            displacementCtx.textAlign = 'center';
-            displacementCtx.textBaseline = 'bottom';
-            
-            // Position the label above or below the vector line
-            const labelX = (originCanvas.x + posCanvas.x) / 2;
-            const labelY = (originCanvas.y + posCanvas.y) / 2 - 10;
-            
-            displacementCtx.fillText(
-                `r${timeInt}=${magnitude.toFixed(1)}m`, 
-                labelX, 
-                labelY
-            );
+            // Removed label with magnitude
         });
     }
     
@@ -331,33 +423,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const centerCanvas = gridToCanvas(center.x, center.y, derivativeCenterY);
             const endPoint = gridToCanvas(scaledVelocity.x, scaledVelocity.y, derivativeCenterY);
             
-            // Draw vector arrow
+            // Draw vector arrow with specific velocity color
+            const colorKey = `${i}-${i+1}`;
             drawArrow(
                 velocityCtx,
                 centerCanvas.x,
                 centerCanvas.y,
                 endPoint.x,
                 endPoint.y,
-                timeColors[i],
+                velocityColors[colorKey],
                 2
             );
             
-            // Add label with magnitude
-            const magnitude = vectorMagnitude(velocity);
-            velocityCtx.fillStyle = '#000';
-            velocityCtx.font = '12px Arial';
-            velocityCtx.textAlign = 'center';
-            velocityCtx.textBaseline = 'bottom';
-            
-            // Position the label
-            const labelX = (centerCanvas.x + endPoint.x) / 2;
-            const labelY = (centerCanvas.y + endPoint.y) / 2 - 10;
-            
-            velocityCtx.fillText(
-                `v${i}-${i+1}=${magnitude.toFixed(1)}m/s`, 
-                labelX, 
-                labelY
-            );
+            // Removed label with magnitude
         }
     }
     
@@ -403,33 +481,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const centerCanvas = gridToCanvas(center.x, center.y, derivativeCenterY);
                 const endPoint = gridToCanvas(acceleration.x, acceleration.y, derivativeCenterY);
                 
-                // Draw vector arrow
+                // Draw vector arrow with specific acceleration color
+                const colorKey = `${i+1}-${i+2}-${i+3}`;
                 drawArrow(
                     accelerationCtx,
                     centerCanvas.x,
                     centerCanvas.y,
                     endPoint.x,
                     endPoint.y,
-                    timeColors[i+2], // Color based on last point
+                    accelerationColors[colorKey],
                     2
                 );
                 
-                // Add label with magnitude
-                const magnitude = vectorMagnitude(acceleration);
-                accelerationCtx.fillStyle = '#000';
-                accelerationCtx.font = '12px Arial';
-                accelerationCtx.textAlign = 'center';
-                accelerationCtx.textBaseline = 'bottom';
-                
-                // Position the label
-                const labelX = (centerCanvas.x + endPoint.x) / 2;
-                const labelY = (centerCanvas.y + endPoint.y) / 2 - 10;
-                
-                accelerationCtx.fillText(
-                    `a${i+1}-${i+2}=${magnitude.toFixed(1)}m/s²`, 
-                    labelX, 
-                    labelY
-                );
+                // Removed label with magnitude
             }
         }
     }
@@ -585,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Initialize grid
+    // Initialize
+    createLegends();
     updateAllVisualizations();
 }); 

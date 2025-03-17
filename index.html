@@ -46,24 +46,44 @@
             </div>
         </div>
 
-        <h3>Position Vectors</h3>
-        <div class="grid-container">
-            <canvas id="vector-grid" width="600" height="600"></canvas>
+        <h3>Position Vectors (r or x)</h3>
+        <div class="visualization-container">
+            <div class="grid-container">
+                <canvas id="vector-grid" width="600" height="600"></canvas>
+            </div>
+            <div class="legend-container" id="position-legend">
+                <!-- Position vector legend will be created by JS -->
+            </div>
         </div>
         
-        <h3>Displacement Vectors</h3>
-        <div class="grid-container">
-            <canvas id="displacement-grid" width="600" height="300"></canvas>
+        <h3>Displacement Vectors (Δx)</h3>
+        <div class="visualization-container">
+            <div class="grid-container">
+                <canvas id="displacement-grid" width="600" height="300"></canvas>
+            </div>
+            <div class="legend-container" id="displacement-legend">
+                <!-- Displacement vector legend will be created by JS -->
+            </div>
         </div>
         
-        <h3>Velocity Vectors</h3>
-        <div class="grid-container">
-            <canvas id="velocity-grid" width="600" height="300"></canvas>
+        <h3>Velocity Vectors (Δx/Δt)</h3>
+        <div class="visualization-container">
+            <div class="grid-container">
+                <canvas id="velocity-grid" width="600" height="300"></canvas>
+            </div>
+            <div class="legend-container" id="velocity-legend">
+                <!-- Velocity vector legend will be created by JS -->
+            </div>
         </div>
         
-        <h3>Acceleration Vectors</h3>
-        <div class="grid-container">
-            <canvas id="acceleration-grid" width="600" height="300"></canvas>
+        <h3>Acceleration Vectors (Δ²x/Δt²)</h3>
+        <div class="visualization-container">
+            <div class="grid-container">
+                <canvas id="acceleration-grid" width="600" height="300"></canvas>
+            </div>
+            <div class="legend-container" id="acceleration-legend">
+                <!-- Acceleration vector legend will be created by JS -->
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
