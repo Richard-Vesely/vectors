@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Vector Visualization</h1>
+        
+        <div class="time-settings">
+            <h3>Time Settings</h3>
+            <div class="time-inputs">
+                <div class="time-input">
+                    <label for="time1">t₁ (s):</label>
+                    <input type="number" id="time1" value="1" step="0.1" min="0">
+                </div>
+                <div class="time-input">
+                    <label for="time2">t₂ (s):</label>
+                    <input type="number" id="time2" value="2" step="0.1" min="0">
+                </div>
+                <div class="time-input">
+                    <label for="time3">t₃ (s):</label>
+                    <input type="number" id="time3" value="3" step="0.1" min="0">
+                </div>
+                <div class="time-input">
+                    <label for="time4">t₄ (s):</label>
+                    <input type="number" id="time4" value="4" step="0.1" min="0">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="time-selectors">
+                <button class="time-btn active" data-time="1">t₁</button>
+                <button class="time-btn" data-time="2">t₂</button>
+                <button class="time-btn" data-time="3">t₃</button>
+                <button class="time-btn" data-time="4">t₄</button>
+            </div>
+            <div class="info-panel">
+                <div id="position-info">Position: (0, 0) meters</div>
+                <div id="selected-time">Selected time: 1s</div>
+                <div class="help-text">Click to place, drag to reposition</div>
+            </div>
+        </div>
+
+        <h3>Position Vectors</h3>
+        <div class="grid-container">
+            <canvas id="vector-grid" width="600" height="600"></canvas>
+        </div>
+        
+        <h3>Displacement Vectors</h3>
+        <div class="grid-container">
+            <canvas id="displacement-grid" width="600" height="300"></canvas>
+        </div>
+        
+        <h3>Velocity Vectors</h3>
+        <div class="grid-container">
+            <canvas id="velocity-grid" width="600" height="300"></canvas>
+        </div>
+        
+        <h3>Acceleration Vectors</h3>
+        <div class="grid-container">
+            <canvas id="acceleration-grid" width="600" height="300"></canvas>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
