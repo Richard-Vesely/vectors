@@ -3,89 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vector Visualization</title>
+    <title>Vector Visualization Tool</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Add MathJax for proper rendering of vector notation -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                packages: ['base', 'ams', 'noerrors', 'noundefined']
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            startup: {
+                ready: function() {
+                    MathJax.startup.defaultReady();
+                    window.MathJax.typeset();
+                }
+            }
+        };
+        
+        // Global function to typeset MathJax content that's dynamically added
+        function MathJaxTypeset() {
+            if (window.MathJax) {
+                window.MathJax.typeset();
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Vector Visualization</h1>
+        <h1>Vector Visualization Tool</h1>
         
         <div class="time-settings">
-            <h3>Time Settings</h3>
+            <h2>Time Settings</h2>
             <div class="time-inputs">
                 <div class="time-input">
                     <label for="time1">t₁ (s):</label>
-                    <input type="number" id="time1" value="1" step="0.1" min="0">
+                    <input type="number" id="time1" min="0" step="0.1" value="1">
                 </div>
                 <div class="time-input">
                     <label for="time2">t₂ (s):</label>
-                    <input type="number" id="time2" value="2" step="0.1" min="0">
+                    <input type="number" id="time2" min="0" step="0.1" value="2">
                 </div>
                 <div class="time-input">
                     <label for="time3">t₃ (s):</label>
-                    <input type="number" id="time3" value="3" step="0.1" min="0">
+                    <input type="number" id="time3" min="0" step="0.1" value="3">
                 </div>
                 <div class="time-input">
                     <label for="time4">t₄ (s):</label>
-                    <input type="number" id="time4" value="4" step="0.1" min="0">
+                    <input type="number" id="time4" min="0" step="0.1" value="4">
                 </div>
             </div>
         </div>
         
-        <div class="controls">
-            <div class="time-selectors">
-                <button class="time-btn active" data-time="1">t₁</button>
-                <button class="time-btn" data-time="2">t₂</button>
-                <button class="time-btn" data-time="3">t₃</button>
-                <button class="time-btn" data-time="4">t₄</button>
-            </div>
-            <div class="info-panel">
-                <div id="position-info">Position: (0, 0) meters</div>
-                <div id="selected-time">Selected time: 1s</div>
-                <div class="help-text">Click to place, drag to reposition</div>
-            </div>
-        </div>
-
-        <h3>Position Vectors (r or x)</h3>
-        <div class="visualization-container">
-            <div class="grid-container">
-                <canvas id="vector-grid" width="600" height="600"></canvas>
-            </div>
-            <div class="legend-container" id="position-legend">
-                <!-- Position vector legend will be created by JS -->
-            </div>
+        <div class="button-group">
+            <button class="time-btn active" data-time="1">t₁</button>
+            <button class="time-btn" data-time="2">t₂</button>
+            <button class="time-btn" data-time="3">t₃</button>
+            <button class="time-btn" data-time="4">t₄</button>
+            <div id="selected-time">Selected time: 1s</div>
+            <div id="position-info">Position: (0, 0) meters</div>
         </div>
         
-        <h3>Displacement Vectors (Δx)</h3>
-        <div class="visualization-container">
-            <div class="grid-container">
-                <canvas id="displacement-grid" width="600" height="300"></canvas>
+        <div class="grids-container">
+            <!-- First column - Position and Displacement vectors -->
+            <div class="grid-column">
+                <div class="grid-section">
+                    <h3>Positions</h3>
+                    <div class="vector-grid-container">
+                        <canvas id="vector-grid" width="400" height="400"></canvas>
+                        <div id="position-legend" class="legend-container"></div>
+                    </div>
+                </div>
+                
+                <div class="grid-section">
+                    <h3>Displacement Vectors ($\vec{r}$)</h3>
+                    <div class="vector-grid-container">
+                        <canvas id="displacement-grid" width="400" height="300"></canvas>
+                        <div id="displacement-legend" class="legend-container"></div>
+                    </div>
+                </div>
             </div>
-            <div class="legend-container" id="displacement-legend">
-                <!-- Displacement vector legend will be created by JS -->
-            </div>
-        </div>
-        
-        <h3>Velocity Vectors (Δx/Δt)</h3>
-        <div class="visualization-container">
-            <div class="grid-container">
-                <canvas id="velocity-grid" width="600" height="300"></canvas>
-            </div>
-            <div class="legend-container" id="velocity-legend">
-                <!-- Velocity vector legend will be created by JS -->
-            </div>
-        </div>
-        
-        <h3>Acceleration Vectors (Δ²x/Δt²)</h3>
-        <div class="visualization-container">
-            <div class="grid-container">
-                <canvas id="acceleration-grid" width="600" height="300"></canvas>
-            </div>
-            <div class="legend-container" id="acceleration-legend">
-                <!-- Acceleration vector legend will be created by JS -->
+            
+            <!-- Second column - Changes in displacement, velocity, and acceleration vectors -->
+            <div class="grid-column">
+                <div class="grid-section">
+                    <h3>Changes in Displacement ($\Delta\vec{r}$)</h3>
+                    <div class="vector-grid-container">
+                        <canvas id="delta-displacement-grid" width="400" height="300"></canvas>
+                        <div id="delta-displacement-legend" class="legend-container"></div>
+                    </div>
+                </div>
+                
+                <div class="grid-section">
+                    <h3>Velocity Vectors ($\vec{v}$)</h3>
+                    <div class="vector-grid-container">
+                        <canvas id="velocity-grid" width="400" height="300"></canvas>
+                        <div id="velocity-legend" class="legend-container"></div>
+                    </div>
+                </div>
+                
+                <div class="grid-section">
+                    <h3>Acceleration Vectors ($\vec{a}$)</h3>
+                    <div class="vector-grid-container">
+                        <canvas id="acceleration-grid" width="400" height="300"></canvas>
+                        <div id="acceleration-legend" class="legend-container"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html> 

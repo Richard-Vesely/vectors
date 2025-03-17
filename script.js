@@ -2,11 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Canvas setup for all grids
     const positionCanvas = document.getElementById('vector-grid');
     const displacementCanvas = document.getElementById('displacement-grid');
+    const deltaDisplacementCanvas = document.getElementById('delta-displacement-grid');
     const velocityCanvas = document.getElementById('velocity-grid');
     const accelerationCanvas = document.getElementById('acceleration-grid');
     
     const positionCtx = positionCanvas.getContext('2d');
     const displacementCtx = displacementCanvas.getContext('2d');
+    const deltaDisplacementCtx = deltaDisplacementCanvas.getContext('2d');
     const velocityCtx = velocityCanvas.getContext('2d');
     const accelerationCtx = accelerationCanvas.getContext('2d');
     
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Legend containers
     const positionLegend = document.getElementById('position-legend');
     const displacementLegend = document.getElementById('displacement-legend');
+    const deltaDisplacementLegend = document.getElementById('delta-displacement-legend');
     const velocityLegend = document.getElementById('velocity-legend');
     const accelerationLegend = document.getElementById('acceleration-legend');
     
@@ -25,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridLines = Math.floor(width / gridSize);
     const centerX = Math.floor(width / 2);
     const centerY = Math.floor(height / 2);
-    const derivativeCenterY = Math.floor(derivativeHeight / 2);
+    // For the derivative grids, adjust the center point to be at a grid intersection
+    const derivativeCenterY = Math.floor(derivativeHeight / 2) - (Math.floor(derivativeHeight / 2) % gridSize);
     
     // UI elements
     const timeButtons = document.querySelectorAll('.time-btn');
@@ -44,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
         2: '#43A047', // Green
         3: '#1E88E5', // Blue
         4: '#8E24AA'  // Purple
+    };
+    
+    // Colors for delta displacement vectors (different from position colors)
+    const deltaDisplacementColors = {
+        "1-2": '#FF9800', // Orange
+        "2-3": '#009688', // Teal
+        "3-4": '#FFEB3B'  // Yellow
     };
     
     // Colors for velocity vectors (different from position colors)
@@ -82,27 +93,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Create legends for all visualizations
     function createLegends() {
-        // Position legend
+        // Position legend (without vector notation)
         positionLegend.innerHTML = `
-            <div class="legend-title">Position Vectors</div>
+            <div class="legend-title">Positions</div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[1]}"></div>
-                <div class="legend-text">x₁: Position at time t₁</div>
+                <div class="legend-text">Position at time t₁</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[2]}"></div>
-                <div class="legend-text">x₂: Position at time t₂</div>
+                <div class="legend-text">Position at time t₂</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[3]}"></div>
-                <div class="legend-text">x₃: Position at time t₃</div>
+                <div class="legend-text">Position at time t₃</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[4]}"></div>
-                <div class="legend-text">x₄: Position at time t₄</div>
+                <div class="legend-text">Position at time t₄</div>
             </div>
             <div class="legend-equation">
-                x = (x, y)
+                (x, y)
             </div>
         `;
         
@@ -111,61 +122,85 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="legend-title">Displacement Vectors</div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[1]}"></div>
-                <div class="legend-text">r₁: Displacement to x₁</div>
+                <div class="legend-text">$\\vec{r}_1$: From origin to position 1</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[2]}"></div>
-                <div class="legend-text">r₂: Displacement to x₂</div>
+                <div class="legend-text">$\\vec{r}_2$: From origin to position 2</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[3]}"></div>
-                <div class="legend-text">r₃: Displacement to x₃</div>
+                <div class="legend-text">$\\vec{r}_3$: From origin to position 3</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${timeColors[4]}"></div>
-                <div class="legend-text">r₄: Displacement to x₄</div>
+                <div class="legend-text">$\\vec{r}_4$: From origin to position 4</div>
             </div>
             <div class="legend-equation">
-                r = x - x₀ = (x, y)
+                $\\vec{r} = \\vec{x} - \\vec{x}_0$
+            </div>
+        `;
+
+        // Delta Displacement legend
+        deltaDisplacementLegend.innerHTML = `
+            <div class="legend-title">Changes in Displacement</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${deltaDisplacementColors["1-2"]}"></div>
+                <div class="legend-text">$\\Delta\\vec{r}_{12}$: Change from 1 to 2</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${deltaDisplacementColors["2-3"]}"></div>
+                <div class="legend-text">$\\Delta\\vec{r}_{23}$: Change from 2 to 3</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${deltaDisplacementColors["3-4"]}"></div>
+                <div class="legend-text">$\\Delta\\vec{r}_{34}$: Change from 3 to 4</div>
+            </div>
+            <div class="legend-equation">
+                $\\Delta\\vec{r}_{12} = \\vec{r}_2 - \\vec{r}_1$
             </div>
         `;
         
         // Velocity legend
         velocityLegend.innerHTML = `
-            <div class="legend-title">Velocity Vectors (Δx/Δt)</div>
+            <div class="legend-title">Velocity Vectors</div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${velocityColors["1-2"]}"></div>
-                <div class="legend-text">v₁₋₂: Velocity from t₁ to t₂</div>
+                <div class="legend-text">$\\vec{v}_{12}$: Velocity from $t_1$ to $t_2$</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${velocityColors["2-3"]}"></div>
-                <div class="legend-text">v₂₋₃: Velocity from t₂ to t₃</div>
+                <div class="legend-text">$\\vec{v}_{23}$: Velocity from $t_2$ to $t_3$</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${velocityColors["3-4"]}"></div>
-                <div class="legend-text">v₃₋₄: Velocity from t₃ to t₄</div>
+                <div class="legend-text">$\\vec{v}_{34}$: Velocity from $t_3$ to $t_4$</div>
             </div>
             <div class="legend-equation">
-                v₁₋₂ = Δx/Δt = (x₂ - x₁)/(t₂ - t₁)
+                $\\vec{v}_{12} = \\frac{\\Delta\\vec{x}}{\\Delta t} = \\frac{\\vec{x}_2 - \\vec{x}_1}{t_2 - t_1}$
             </div>
         `;
         
         // Acceleration legend
         accelerationLegend.innerHTML = `
-            <div class="legend-title">Acceleration Vectors (Δ²x/Δt²)</div>
+            <div class="legend-title">Acceleration Vectors</div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${accelerationColors["1-2-3"]}"></div>
-                <div class="legend-text">a₁₋₂₋₃: Acceleration from t₁ to t₃</div>
+                <div class="legend-text">$\\vec{a}_{123}$: Acceleration from $t_1$ to $t_3$</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${accelerationColors["2-3-4"]}"></div>
-                <div class="legend-text">a₂₋₃₋₄: Acceleration from t₂ to t₄</div>
+                <div class="legend-text">$\\vec{a}_{234}$: Acceleration from $t_2$ to $t_4$</div>
             </div>
             <div class="legend-equation">
-                a₁₋₂₋₃ = Δv/Δt = (v₂₋₃ - v₁₋₂)/Δt
-                      = Δ²x/Δt²
+                $\\vec{a}_{123} = \\frac{\\Delta\\vec{v}}{\\Delta t} = \\frac{\\vec{v}_{23} - \\vec{v}_{12}}{\\Delta t}$
             </div>
         `;
+        
+        // Typeset MathJax content after adding it to the DOM
+        if (window.MathJax) {
+            window.MathJax.typeset();
+        }
     }
     
     // Draw grid for position canvas
@@ -282,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(centerX, canvasHeight);
         ctx.stroke();
         
-        // Add title - moved more to the right
+        // Add title text (no LaTeX here)
         ctx.fillStyle = '#333';
         ctx.font = 'bold 14px Arial';
         ctx.fillText(title, width / 4, 20);
@@ -355,19 +390,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 positionCtx.stroke();
             }
             
-            // Draw label
-            positionCtx.fillStyle = '#000';
-            positionCtx.font = '12px Arial';
-            positionCtx.textAlign = 'center';
-            positionCtx.textBaseline = 'bottom';
-            positionCtx.fillText(`x${timeInt} (t=${timeValues[timeInt-1]}s)`, x, y - 10);
+            // No labels for position markers
         });
     }
     
     // Draw displacement vectors
     function drawDisplacementVectors() {
         // Clear and redraw grid
-        drawDerivativeGrid(displacementCtx, derivativeHeight, 'Displacement Vectors (from origin)');
+        drawDerivativeGrid(displacementCtx, derivativeHeight, 'Displacement Vectors');
         
         // Draw displacement vectors from origin for each point
         Object.entries(positions).forEach(([time, position]) => {
@@ -388,15 +418,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeColors[timeInt],
                 2
             );
-            
-            // Removed label with magnitude
         });
+    }
+
+    // Draw delta displacement vectors (changes in displacement)
+    function drawDeltaDisplacementVectors() {
+        // Clear and redraw grid
+        drawDerivativeGrid(deltaDisplacementCtx, derivativeHeight, 'Changes in Displacement');
+        
+        // Calculate and draw delta displacement vectors between consecutive points
+        for (let i = 1; i < 4; i++) {
+            const currentPos = positions[i];
+            const nextPos = positions[i + 1];
+            
+            if (!currentPos || !nextPos) continue;
+            
+            // Calculate delta displacement vector
+            const deltaDisplacement = {
+                x: nextPos.x - currentPos.x,
+                y: nextPos.y - currentPos.y
+            };
+            
+            // Position vector at center
+            const center = { x: 0, y: 0 };
+            const centerCanvas = gridToCanvas(center.x, center.y, derivativeCenterY);
+            const endPoint = gridToCanvas(deltaDisplacement.x, deltaDisplacement.y, derivativeCenterY);
+            
+            // Draw vector arrow
+            const colorKey = `${i}-${i+1}`;
+            drawArrow(
+                deltaDisplacementCtx,
+                centerCanvas.x,
+                centerCanvas.y,
+                endPoint.x,
+                endPoint.y,
+                deltaDisplacementColors[colorKey],
+                2
+            );
+        }
     }
     
     // Draw velocity vectors
     function drawVelocityVectors() {
         // Clear and redraw grid
-        drawDerivativeGrid(velocityCtx, derivativeHeight, 'Velocity Vectors (change in displacement)');
+        drawDerivativeGrid(velocityCtx, derivativeHeight, 'Velocity Vectors');
         
         // Calculate and draw velocity vectors between consecutive points
         for (let i = 1; i < 4; i++) {
@@ -434,15 +499,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 velocityColors[colorKey],
                 2
             );
-            
-            // Removed label with magnitude
         }
     }
     
     // Draw acceleration vectors
     function drawAccelerationVectors() {
         // Clear and redraw grid
-        drawDerivativeGrid(accelerationCtx, derivativeHeight, 'Acceleration Vectors (change in velocity)');
+        drawDerivativeGrid(accelerationCtx, derivativeHeight, 'Acceleration Vectors');
         
         // Need at least 3 points to calculate acceleration
         if (positions[1] && positions[2] && positions[3]) {
@@ -492,8 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     accelerationColors[colorKey],
                     2
                 );
-                
-                // Removed label with magnitude
             }
         }
     }
@@ -502,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateAllVisualizations() {
         drawPositionGrid();
         drawDisplacementVectors();
+        drawDeltaDisplacementVectors();
         drawVelocityVectors();
         drawAccelerationVectors();
         
